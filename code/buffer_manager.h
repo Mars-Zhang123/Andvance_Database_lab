@@ -44,6 +44,6 @@ public:
     void PrintFrame(int frame_id);
 private:
     // Hash Table
-    int ftop[DEFBUFSIZE];
-    BCB* ptof[DEFBUFSIZE];
+    //int ftop[DEFBUFSIZE];
+    //BCB* ptof[DEFBUFSIZE];
 };
