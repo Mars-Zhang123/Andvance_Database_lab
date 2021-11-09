@@ -4,10 +4,4 @@ using namespace std;
 
 const extern int FRAMESIZE = 4096;
 const extern int DEFBUFSIZE = 1024;
-
-int main(){
-
-    cout << "hello \n";
-    cin.get();
-    return 0;
-}
+const extern string DATAFILE = "data.dbf"
