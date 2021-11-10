@@ -108,6 +108,9 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="data_storage_manager.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\data-5w-50w-zipf.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

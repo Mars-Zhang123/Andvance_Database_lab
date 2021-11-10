@@ -9,3 +9,6 @@ const extern int DEFBUFSIZE;
 
 //demo中数据库所有data存储在DATAFILE中，单文件存储
 const extern string  DATAFILE;
+
+//demo中默认单个文件最大页数
+const extern int MAXPAGES;
