@@ -390,9 +390,9 @@ FodyWeavers.xsd
 .vscode/
 
 *.dbf
-*.exe
-*.log
-*.txt
 *.out
 *.in
 *.s
+*.vcxproj
+*filters
+
