@@ -3,7 +3,7 @@
 
 using std::string;
 
-//帧的大小，frame与page保持同等大小，在硬盘为page，主存中为frame
+//帧的大小(在硬盘为page，主存中为frame)
 const extern int FRAMESIZE;
 
 //缓冲区大小（帧的个数）
