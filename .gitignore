@@ -395,5 +395,3 @@ FodyWeavers.xsd
 *.s
 *.vcxproj
 *filters
-
-.vs/
