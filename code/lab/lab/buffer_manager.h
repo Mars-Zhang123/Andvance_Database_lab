@@ -1,7 +1,6 @@
 #pragma once
 #include "config.h"
 #include "data_storage_manager.h"
-#include "header.h"
 
 using std::mutex;
 
@@ -20,7 +19,7 @@ public:
     };
 
     //
-    int FixPage(int page_id, int prot);
+    int FixPage(int page_id);
 
     //
     void FixNewPage();

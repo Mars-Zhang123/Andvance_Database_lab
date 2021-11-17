@@ -14,3 +14,6 @@ const extern string  DATAFILE;
 
 //demo中默认单个文件最大页数
 const extern int MAXPAGES;
+
+//日志开关
+extern bool LOG_ON_OFF;

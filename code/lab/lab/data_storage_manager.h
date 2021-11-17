@@ -1,12 +1,19 @@
 #pragma once
 #include "config.h"
 #include "header.h"
+#include "logger.h"
+
+
 
 //定义数据存储管理器
 class DSMgr {
 public:
-    DSMgr(int MaxNum) {
-        pages = new int[MaxNum];
+    typedef long long off_t;
+
+    DSMgr() {
+        pages = new off_t[MAXPAGES];
+        currFile = nullptr;
+        useBit = 0;
     };
 
     ~DSMgr() {
@@ -14,10 +21,10 @@ public:
     };
 
     //打开指定文件名的文件
-    int OpenFile(string filename);
+    void OpenFile(string filename);
 
-    //关闭数据文件，当且仅当数据修改或程序关闭调用
-    int CloseFile();
+    //关闭数据文件
+    void CloseFile();
 
     //从page_id对应的页读取数据，由缓冲管理器的FixPage函数调用
     bFrame ReadPage(int page_id);//bytes？？？
@@ -26,7 +33,7 @@ public:
     int WritePage(int frame_id, bFrame frm);
 
     //移动文件指针
-    int Seek(int offset, int pos);
+    void Seek(off_t offset);
     
     //返回当前文件指针
     FILE* GetFile();
@@ -50,6 +57,9 @@ private:
     //当前页面数
     int numPages;
 
-    //跟踪page的使用情况
-    int* pages;
+    //记录pa'ge
+    off_t* pages;
+
+    //文件使用位图
+    size_t useBit;
 };
