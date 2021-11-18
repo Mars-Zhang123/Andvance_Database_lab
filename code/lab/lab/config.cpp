@@ -3,5 +3,5 @@
 const extern int FRAMESIZE = 4096;
 const extern int DEFBUFSIZE = 1024;
 const extern string DATAFILE = "data.dbf";
-const extern int MAXPAGES = 50000;
+const extern int MAXPAGES = 51200;//64 * 8 * 100 
 extern bool LOG_ON_OFF = true;

@@ -25,3 +25,5 @@ struct BCB {
     BCB* next;//用于构造溢出链
     BCB() :page_id(-1), frame_id(-1), count(0), dirty(false), next(nullptr) {};
 };
+
+
