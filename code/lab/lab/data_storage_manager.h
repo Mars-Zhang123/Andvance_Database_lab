@@ -14,7 +14,7 @@ public:
     typedef unsigned long long bit_map;
 
     DSMgr() {
-        useBit = new bit_map[BIT_MAP_SZIE]();
+        useBit = new bit_map[BIT_MAP_SIZE]();
         currFile = nullptr;
         numUsePages = 0;
         //默认初始预分配16个bit_map记录的page数
@@ -33,9 +33,9 @@ public:
     void CloseFile();
 
     //从page_id对应的页读取数据，由缓冲管理器的FixPage函数调用
-    bFrame ReadPage(int page_id);//bytes？？？
+    bFrame ReadPage(int page_id);
 
-    //当frame从缓冲区取出时调用，返回编写的字节数，将数据保存至文件
+    //当frame从缓冲区取出时调用，将数据保存至文件
     void WritePage(int page_id, bFrame *frm);
 
     //返回当前文件指针
@@ -44,8 +44,17 @@ public:
     //返回已使用页面数
     int GetNumUsePages()const { return numUsePages; };
 
+    //返回分配的页面数
+    int GetNumAllocatedPages()const { return numAllocatePages; };
+
     //返回page_id对应对应page的use_bit
     bool GetUse(int page_id)const;
+
+    //逻辑层面删除指定的页
+    void DeletePage(int page_id);
+
+    //整理文件，使存储数据连续，并且物理上删除多余空间（留64*2预存页），较为耗时，此项目未实现该函数
+    void TidyAndClean() {};
 
 protected:
     //移动文件指针
@@ -54,7 +63,7 @@ protected:
     //增加文件分配页,每次增加4*sizeof(bit_map)页
     void addAllocatePages();
 
-    //设置page_id的use_bit
+    //设置page_id的use_bit,true:已使用,false:未使用
     void SetUse(int page_id, bool isUse);
 
 private:
@@ -76,7 +85,7 @@ private:
     //一个bit_map记录对应的page数
     const static int NUM_PAGES_OF_BIT_MAP;
     
-    //位图尺寸
-    const static int BIT_MAP_SZIE;
+    //位图个数
+    const static int BIT_MAP_SIZE;
 
 };

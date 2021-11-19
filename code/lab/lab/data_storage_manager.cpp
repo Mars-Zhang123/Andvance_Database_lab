@@ -1,10 +1,10 @@
 #include "data_storage_manager.h"
 
 const int DSMgr::NUM_PAGES_OF_BIT_MAP = sizeof(bit_map) * 8;
-const int DSMgr::BIT_MAP_SZIE = MAXPAGES / NUM_PAGES_OF_BIT_MAP + 1;
-const DSMgr::off_t  DSMgr::HEAD_BYTE_SIZE = 2 * sizeof(int) + sizeof(bit_map) * DSMgr::BIT_MAP_SZIE;
+const int DSMgr::BIT_MAP_SIZE = MAXPAGES / NUM_PAGES_OF_BIT_MAP + 1;
+const DSMgr::off_t  DSMgr::HEAD_BYTE_SIZE = 2 * sizeof(int) + sizeof(bit_map) * off_t(DSMgr::BIT_MAP_SIZE);
 
-void DSMgr::OpenFile(string filename, bool create_file = false) {
+void DSMgr::OpenFile(string filename, bool create_file) {
 	LOG_DEBUG("execute DSMgr::OpenFile");
 	if (fopen_s(&currFile, (filename).c_str(), "wb+"))
 		FAIL;
@@ -13,7 +13,7 @@ void DSMgr::OpenFile(string filename, bool create_file = false) {
 			FAILARG("Error writing element of \"numAllocatePages\" in file");
 		if(fwrite(&numUsePages, sizeof(int), 1, currFile) != 1)
 			FAILARG("Error writing element of \"numUsePages\" in file");
-		if (fwrite(useBit, sizeof(bit_map), BIT_MAP_SZIE, currFile) != BIT_MAP_SZIE)
+		if (fwrite(useBit, sizeof(bit_map), BIT_MAP_SIZE, currFile) != BIT_MAP_SIZE)
 			FAILARG("Error writing element of \"useBit\" in file");
 
 		bFrame* tmp = new bFrame[numAllocatePages]();
@@ -25,7 +25,7 @@ void DSMgr::OpenFile(string filename, bool create_file = false) {
 			FAILARG("Error reading element of \"numAllocatePages\" in file");
 		if (fread(&numUsePages, sizeof(int), 1, currFile) != 1)
 			FAILARG("Error reading element of \"numUsePages\" in file");
-		if (fread(useBit, sizeof(bit_map), BIT_MAP_SZIE, currFile) != BIT_MAP_SZIE)
+		if (fread(useBit, sizeof(bit_map), BIT_MAP_SIZE, currFile) != BIT_MAP_SIZE)
 			FAILARG("Error reading element of \"useBit\" in file");
 	}
 }
@@ -38,7 +38,7 @@ void DSMgr::CloseFile() {
 		FAILARG("Error writing element of \"numAllocatePages\" in file");
 	if (fwrite(&numUsePages, sizeof(int), 1, currFile) != 1)
 		FAILARG("Error writing element of \"numUsePages\" in file");
-	if (fwrite(useBit, sizeof(bit_map), BIT_MAP_SZIE, currFile) != BIT_MAP_SZIE)
+	if (fwrite(useBit, sizeof(bit_map), BIT_MAP_SIZE, currFile) != BIT_MAP_SIZE)
 		FAILARG("Error writing element of \"useBit\" in file");
 
 	if (fclose(currFile))
@@ -54,7 +54,7 @@ void DSMgr::Seek(off_t offset) {
 void DSMgr::addAllocatePages() {
 	LOG_DEBUG("execute DSMgr::addAllcatePages");
 
-	Seek(HEAD_BYTE_SIZE + numAllocatePages * FRAMESIZE);
+	Seek(HEAD_BYTE_SIZE + numAllocatePages * off_t(FRAMESIZE));
 	int addSize = NUM_PAGES_OF_BIT_MAP * 4;
 	numAllocatePages += addSize;
 	
@@ -80,9 +80,6 @@ void DSMgr::SetUse(int page_id, bool isUse) {
 
 bool DSMgr::GetUse(int page_id) const {
 	LOG_DEBUG("execute DSMgr::GetUse");
-	if (page_id >= numAllocatePages) {
-		FAILARG("Prohibit operation on unassigned pages of bit_map");
-	}
 
 	bit_map& use_bit = useBit[page_id / NUM_PAGES_OF_BIT_MAP];
 	if (use_bit & (1ULL << (page_id % NUM_PAGES_OF_BIT_MAP))) {return true;}
@@ -95,7 +92,7 @@ bFrame DSMgr::ReadPage(int page_id) {
 		FAILARG("Prohibit reading unassigned pages");
 	}
 
-	off_t off_set = HEAD_BYTE_SIZE + page_id * FRAMESIZE;
+	off_t off_set = HEAD_BYTE_SIZE + page_id * off_t(FRAMESIZE);
 	Seek(off_set);
 	bFrame ret;
 	if (fread(&ret, sizeof(bFrame), 1, currFile) != 1)
@@ -109,11 +106,18 @@ void DSMgr::WritePage(int page_id, bFrame* frm) {
 		FAILARG("The page visited exceeds the maximum file size");
 	}
 
+	//判断该页是否分配，若未分配，则分配
 	while (page_id >= numAllocatePages) {addAllocatePages();}
 
-	off_t off_set = HEAD_BYTE_SIZE + page_id * FRAMESIZE;
+	off_t off_set = HEAD_BYTE_SIZE + page_id * off_t(FRAMESIZE);
 	Seek(off_set);
 	if (fwrite(frm, sizeof(bFrame), 1, currFile) != 1)
 		FAILARG("Error writing the page in file");
 	SetUse(page_id, true);
+}
+
+void DSMgr::DeletePage(int page_id) {
+	LOG_DEBUG("execute DSMgr::DeletePage");
+	//标记为未使用，逻辑上删除，并非物理上删除
+	SetUse(page_id, false);
 }

@@ -6,13 +6,7 @@ using std::mutex;
 
 //定义帧结构
 struct bFrame {
-    char* field;
-    bFrame() {
-        field = new char[FRAMESIZE];
-    }
-    ~bFrame() {
-        delete[] field;
-    }
+    char field[FRAMESIZE];
 };
 
 //Buffer Control Blocks，缓冲控制块
