@@ -2,6 +2,7 @@
 #include <iostream>
 using std::cout;
 using std::endl;
+
 void init() {
 	LOG_ON_OFF = true;
 	FILE *streamLog, *streamData;
@@ -11,6 +12,10 @@ void init() {
 }
 
 int main() {
+	typedef unsigned long long ull;
+	ull x = 4;
+	cout << FIRSTSIGN(x);
 	
+	//cout << x + 1;
 	return 0;
 }

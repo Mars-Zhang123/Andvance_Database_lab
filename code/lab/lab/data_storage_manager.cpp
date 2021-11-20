@@ -51,7 +51,7 @@ void DSMgr::Seek(off_t offset) {
 		FAIL;
 }
 
-void DSMgr::addAllocatePages() {
+void DSMgr::AddAllocatePages() {
 	LOG_DEBUG("execute DSMgr::addAllcatePages");
 
 	Seek(HEAD_BYTE_SIZE + numAllocatePages * off_t(FRAMESIZE));
@@ -107,7 +107,7 @@ void DSMgr::WritePage(int page_id, bFrame* frm) {
 	}
 
 	//判断该页是否分配，若未分配，则分配
-	while (page_id >= numAllocatePages) {addAllocatePages();}
+	while (page_id >= numAllocatePages) {AddAllocatePages();}
 
 	off_t off_set = HEAD_BYTE_SIZE + page_id * off_t(FRAMESIZE);
 	Seek(off_set);
@@ -120,4 +120,27 @@ void DSMgr::DeletePage(int page_id) {
 	LOG_DEBUG("execute DSMgr::DeletePage");
 	//标记为未使用，逻辑上删除，并非物理上删除
 	SetUse(page_id, false);
+}
+
+int DSMgr::GetFreePageId() {
+	LOG_DEBUG("execute DSMgr::GetFreePage");
+
+	if (numAllocatePages == numUsePages) {//所有分配的页都被使用
+		AddAllocatePages();
+		return numUsePages;
+	} else {//已分配的页中存在未使用的页
+		int idx = 0;
+		int num_allocated_bit_maps = numAllocatePages / NUM_PAGES_OF_BIT_MAP;
+		while (idx < num_allocated_bit_maps) {
+			//pos得到整型数0出现的最低位
+			int pos = FIRSTSIGN(~useBit[idx]);
+			if (pos != NUM_PAGES_OF_BIT_MAP) {
+				return idx * NUM_PAGES_OF_BIT_MAP + pos;
+			}
+			idx++;
+		}
+	}
+	//如果无free page，抛出错误
+	FAIL;
+	return -1;
 }

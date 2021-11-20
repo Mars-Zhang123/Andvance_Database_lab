@@ -40,6 +40,9 @@ public:
 
     //返回当前文件指针
     FILE* GetFile() { return currFile; };
+
+    //已使用页面数+1
+    void AddNumUsePages() { numUsePages++; };
     
     //返回已使用页面数
     int GetNumUsePages()const { return numUsePages; };
@@ -56,12 +59,15 @@ public:
     //整理文件，使存储数据连续，并且物理上删除多余空间（留64*2预存页），较为耗时，此项目未实现该函数
     void TidyAndClean() {};
 
+    //得到一个较为靠前的未使用的page_id，该函数可能改变numAllocatedPages值
+    int GetFreePageId();
+
 protected:
     //移动文件指针
     void Seek(off_t offset);
 
     //增加文件分配页,每次增加4*sizeof(bit_map)页
-    void addAllocatePages();
+    void AddAllocatePages();
 
     //设置page_id的use_bit,true:已使用,false:未使用
     void SetUse(int page_id, bool isUse);

@@ -18,3 +18,4 @@ const extern int MAXPAGES;
 //日志开关
 extern bool LOG_ON_OFF;
 
+
