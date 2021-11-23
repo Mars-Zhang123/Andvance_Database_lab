@@ -60,6 +60,14 @@ struct LRU_List {
         head.next = &tail;
         tail.pre = &head;
     }
+    ~LRU_List() {
+        LRU_Node* cur = head.next, * tmp;
+        while (cur != &tail) {
+            tmp = cur;
+            cur = cur->next;
+            delete tmp;
+        }
+    }
 };
 
 

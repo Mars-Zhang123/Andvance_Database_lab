@@ -6,9 +6,9 @@ const DSMgr::off_t  DSMgr::HEAD_BYTE_SIZE = 2 * sizeof(int) + sizeof(bit_map) * 
 
 void DSMgr::OpenFile(string filename, bool create_file) {
 	LOG_DEBUG("execute DSMgr::OpenFile");
-	if (fopen_s(&currFile, (filename).c_str(), "wb+"))
-		FAIL;
 	if (create_file) {
+		if (fopen_s(&currFile, (filename).c_str(), "wb+"))
+			FAIL;
 		if (fwrite(&numAllocatePages, sizeof(int), 1, currFile) != 1)
 			FAILARG("Error writing element of \"numAllocatePages\" in file");
 		if(fwrite(&numUsePages, sizeof(int), 1, currFile) != 1)
@@ -17,10 +17,12 @@ void DSMgr::OpenFile(string filename, bool create_file) {
 			FAILARG("Error writing element of \"useBit\" in file");
 
 		bFrame* tmp = new bFrame[numAllocatePages]();
-		if (fwrite(&tmp, sizeof(bFrame), numAllocatePages, currFile) != numAllocatePages)
+		if (fwrite(tmp, sizeof(bFrame), numAllocatePages, currFile) != numAllocatePages)
 			FAILARG("Error allocating pages");
 		delete[]tmp;
 	} else {
+		if (fopen_s(&currFile, (filename).c_str(), "ab+"))
+			FAIL;
 		if (fread(&numAllocatePages, sizeof(int), 1, currFile) != 1)
 			FAILARG("Error reading element of \"numAllocatePages\" in file");
 		if (fread(&numUsePages, sizeof(int), 1, currFile) != 1)
@@ -32,6 +34,9 @@ void DSMgr::OpenFile(string filename, bool create_file) {
 
 void DSMgr::CloseFile() {
 	LOG_DEBUG("execute DSMgr::CloseFile");
+
+	if (_fseeki64(currFile, 0, SEEK_SET) || ferror(currFile))
+		FAIL;
 
 	//将首部写回文件
 	if (fwrite(&numAllocatePages, sizeof(int), 1, currFile) != 1)
@@ -59,7 +64,7 @@ void DSMgr::AddAllocatePages() {
 	numAllocatePages += addSize;
 	
 	bFrame* tmp = new bFrame[addSize]();
-	if (fwrite(&tmp, sizeof(bFrame), addSize, currFile) != addSize)
+	if (fwrite(tmp, sizeof(bFrame), addSize, currFile) != addSize)
 		FAILARG("Error adding allocated pages");
 	delete[]tmp;
 }
@@ -71,10 +76,11 @@ void DSMgr::SetUse(int page_id, bool isUse) {
 	}
 
 	bit_map& use_bit = useBit[page_id / NUM_PAGES_OF_BIT_MAP];
+	int setbit = NUM_PAGES_OF_BIT_MAP - (page_id % NUM_PAGES_OF_BIT_MAP) - 1;
 	if (isUse) {//定义为已使用
-		use_bit |= (1ULL << (page_id % NUM_PAGES_OF_BIT_MAP));
+		use_bit |= (1ULL << setbit);
 	} else { //定义为未使用
-		use_bit &= ~(1ULL << (page_id % NUM_PAGES_OF_BIT_MAP));
+		use_bit &= ~(1ULL << setbit);
 	}
 }
 
@@ -82,12 +88,13 @@ bool DSMgr::GetUse(int page_id) const {
 	LOG_DEBUG("execute DSMgr::GetUse");
 
 	bit_map& use_bit = useBit[page_id / NUM_PAGES_OF_BIT_MAP];
-	if (use_bit & (1ULL << (page_id % NUM_PAGES_OF_BIT_MAP))) {return true;}
+	int setbit = NUM_PAGES_OF_BIT_MAP - (page_id % NUM_PAGES_OF_BIT_MAP) - 1;
+	if (use_bit & (1ULL << setbit)) {return true;}
 	return false;
 }
 
-bFrame DSMgr::ReadPage(int page_id) {
-	LOG_DEBUG("execute DSMgr::ReadPage");
+bFrame DSMgr::ReadPageFromDSMgr(int page_id) {
+	LOG_DEBUG("execute DSMgr::ReadPageFromDSMgr");
 	if (!GetUse(page_id)) {
 		FAILARG("Prohibit reading unassigned pages");
 	}
@@ -135,12 +142,13 @@ int DSMgr::GetFreePageId() {
 			//pos得到整型数0出现的最低位
 			int pos = FIRSTSIGN(~useBit[idx]);
 			if (pos != NUM_PAGES_OF_BIT_MAP) {
-				return idx * NUM_PAGES_OF_BIT_MAP + pos;
+				return (idx + 1) * NUM_PAGES_OF_BIT_MAP - pos - 1;
 			}
 			idx++;
 		}
+		//如果无free page，抛出错误
+		FAIL;
 	}
-	//如果无free page，抛出错误
-	FAIL;
+	
 	return -1;
 }

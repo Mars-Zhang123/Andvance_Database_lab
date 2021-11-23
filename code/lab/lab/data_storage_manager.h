@@ -22,8 +22,8 @@ public:
     };
 
     ~DSMgr() {
-        delete[]useBit;
         CloseFile();
+        delete[]useBit;
     };
 
     //打开指定文件名的文件
@@ -32,17 +32,11 @@ public:
     //关闭数据文件
     void CloseFile();
 
-    //从page_id对应的页读取数据，由缓冲管理器的FixPage函数调用
-    bFrame ReadPage(int page_id);
+    //从page_id对应的页读取数据，由缓冲管理器的FillFrame函数调用
+    bFrame ReadPageFromDSMgr(int page_id);
 
     //当frame从缓冲区取出时调用，将数据保存至文件
     void WritePage(int page_id, bFrame *frm);
-
-    //返回当前文件指针
-    FILE* GetFile() { return currFile; };
-
-    //已使用页面数+1
-    void AddNumUsePages() { numUsePages++; };
     
     //返回已使用页面数
     int GetNumUsePages()const { return numUsePages; };
@@ -53,9 +47,6 @@ public:
     //返回page_id对应对应page的use_bit
     bool GetUse(int page_id)const;
 
-    //逻辑层面删除指定的页
-    void DeletePage(int page_id);
-
     //整理文件，使存储数据连续，并且物理上删除多余空间（留64*2预存页），较为耗时，此项目未实现该函数
     void TidyAndClean() {};
 
@@ -63,6 +54,15 @@ public:
     int GetFreePageId();
 
 protected:
+    //返回当前文件指针
+    FILE* GetFile() { return currFile; };
+
+    //已使用页面数+1
+    void AddNumUsePages() { numUsePages++; };
+
+    //逻辑层面删除指定的页
+    virtual void DeletePage(int page_id);
+
     //移动文件指针
     void Seek(off_t offset);
 

@@ -34,15 +34,6 @@ public:
         delete[]isUse;
     };
 
-    //虚函数，具体由派生类调度策略类实现
-    //int FixPage(int page_id);
-
-    //返回填充新page的page_id
-    int FixNewPage(bFrame *tmp);
-
-    //解除一次对page的count
-    int UnfixPage(int page_id);
-
     //返回空闲可用的frames的总数
     int NumFreeFrames()const { return DEFBUFSIZE - NumUseFrames; };
 
@@ -50,34 +41,63 @@ public:
     int GetFreeFrameId();
 
     //打印对应frame的内容
-    void PrintFrame(int frame_id)const { printf("The %d-th frame is: %s\n", &frame_id, buffer + frame_id); };
+    void PrintFrame(int frame_id)const { printf("The %d -th frame is: %s\n", frame_id, buffer[frame_id].field); };
+
+    virtual void DeletePage(int page_id);
 
 protected:
+    //返回填充新page的page_id
+    virtual int FixNewPage(bFrame* tmp);
+
+    //解除一次对page的count
+    int UnfixPage(int page_id);
+
+    //将page读入buffer，并返回frame_id,由调度策略决定如何选择填充的frame
+    virtual int FillFrame(int page_id) = 0;
+
+    //选择一个替换页，根据派生类的调度策略决定所替换的页
+    virtual int SelectVictim() = 0;
+
+    //从buffer中读取页，读取成功返回对应的frame_id，如果frame未加载至buffer，返回-1
+    virtual int ReadPageFromBMgr(int page_id, bFrame*& reader) = 0;
+
+    //写页，若直接在buffer中写入成功则返回frame_id，若frame未加载，返回-1
+    virtual int WritePageFromBMgr(int page_id, bFrame* writer) = 0;
+
     //key:page_id，value:BCB,H(K)=(page_id)%DEFBUFSIZE,冲突则查找溢出队列
     BCB* GetBCB(int page_id);
 
-    //将bcb插入到静态hash中
+    //将bcb插入到静态hash中,时间复杂度O(1)
     void InsertBCB(BCB* bcb);
 
-    //调用GetBCB得到page_id对应BCB并返回frame_id
-    int GetFrameId(int page_id);
+    //删除指定BCB，由SelectVictim()调用,时间复杂度O(n),删除成功返回true，否则false
+    bool RemoveBCB(int frame_id, bool writeBack = true);
 
-    //删除指定BCB，由SelectVictim()调用
-    void RemoveBCB(int frame_id);
+    //调用GetBCB得到page_id对应BCB并返回frame_id，不存在该page返回-1
+    int GetFrameId(int page_id);
 
     //设置该frame的dirty位
     void SetDirty(int frame_id, bool isDirty);
 
+    //返回对应帧的起始地址
+    bFrame* GetFramePtr(int frame_id) { return buffer + frame_id; };
+
+    //更新frame2page映射
+    void UpdateFrame2Page(int fid, int pid) { frame2page[pid] = pid; };
+
+    //
+    int GetPageId(int frame_id)const { return frame2page[frame_id]; };
+
+private:
+    //将frame写回disk
+    void WriteBack(int frame_id);
+
     //将所有脏frame写回disk
     void WriteDirtys();
-
-    //返回对应帧的起始地址
-    bFrame* GetFramePtr(int frame_id)const { return buffer + frame_id; };
 
     //设置对应帧的使用标志
     void SetUse(int frame_id, bool _isUse) { isUse[frame_id] = _isUse; };
 
-private:
     //key:frame_id, value:page_id
     int* frame2page;
 
