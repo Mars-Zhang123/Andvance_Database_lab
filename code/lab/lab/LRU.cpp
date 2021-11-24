@@ -25,10 +25,9 @@ int LRU::FixNewPage(bFrame* tmp) {//写新页并加入缓存
 	return page_id;
 }
 
-int LRU::FillFrame(int page_id) {
+int LRU::FillFrame(int page_id, bool willUpdating) {
 	LOG_DEBUG("execute LRU::FillFrame");
 
-	bFrame content = ReadPageFromDSMgr(page_id);
 	int frame_id = GetFreeFrameId();
 	if (frame_id == -1) {//不存在空闲frame
 		frame_id = SelectVictim();
@@ -37,7 +36,11 @@ int LRU::FillFrame(int page_id) {
 		;
 	}
 
-	memcpy(GetFramePtr(frame_id)->field, content.field, FRAMESIZE);
+	if (!willUpdating) {//如果下一步操作不更新，应该进行一次磁盘IO，即真正意义上读取disk
+		bFrame content = ReadPageFromDSMgr(page_id);
+		memcpy(GetFramePtr(frame_id)->field, content.field, FRAMESIZE);
+	}
+	
 	BCB* bcb = new BCB();
 	bcb->set(page_id, frame_id);
 	InsertBCB(bcb);
@@ -82,7 +85,7 @@ int LRU::SelectVictim() {
 	int frame_id = tmp->frame_id;
 	BiList.tail.pre = tmp->pre;
 	tmp->pre->next = &(BiList.tail);
-	if (!RemoveBCB(frame_id)) { fprintf(stderr, "%d %d %d\n", frame_id, GetPageId(frame_id), GetFrameId(GetPageId(frame_id))); FAIL; };
+	if (!RemoveBCB(frame_id)) { FAIL; };
 	delete tmp;
 	frameId2nodePtr[frame_id] = nullptr;
 	return frame_id;
@@ -98,9 +101,10 @@ void LRU::UpdateLRU(int frame_id) {
 	tmp->pre = &(BiList.head);
 	tmp->next = BiList.head.next;
 	tmp->next->pre = tmp;
+	BiList.head.next = tmp;
 }
 
-int LRU::ReadPageFromBMgr(int page_id, bFrame*& reader) {
+int LRU::ReadPageFromBMgr(int page_id, bFrame* reader) {
 	LOG_DEBUG("execute LRU::ReadPageFromBMgr");
 
 	int frame_id = GetFrameId(page_id);
@@ -108,9 +112,10 @@ int LRU::ReadPageFromBMgr(int page_id, bFrame*& reader) {
 		frame_id = FillFrame(page_id);
 	} else {//命中
 		UpdateLRU(frame_id);
+		countHit++;
 	}
 
-	reader = GetFramePtr(frame_id);
+	memcpy(reader, GetFramePtr(frame_id), sizeof(bFrame));
 
 	return frame_id;
 }
@@ -120,13 +125,15 @@ int LRU::WritePageFromBMgr(int page_id, bFrame* writer) {
 
 	int frame_id = GetFrameId(page_id);
 	if (frame_id == -1) {//未命中
-		frame_id = FillFrame(page_id);
+		frame_id = FillFrame(page_id, true);
 	} else {//命中
 		UpdateLRU(frame_id);
+		countHit++;
 	}
 
+	
 	bFrame* frame = GetFramePtr(frame_id);
-	memcpy(frame, writer, sizeof(bFrame));
+	memcpy(frame->field, writer->field, sizeof(bFrame));
 
 	//该页设为脏
 	SetDirty(frame_id, true);

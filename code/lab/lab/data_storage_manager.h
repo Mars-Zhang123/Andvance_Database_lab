@@ -8,12 +8,16 @@
 //定义数据存储管理器
 class DSMgr {
 public:
+    //计数类型
+    typedef unsigned int count_n;
     //在该类中重新定义off_t(编译器默认的off_t为int类型)
     typedef long long off_t;
     //一个bitmap能记录64个page使用情况
     typedef unsigned long long bit_map;
 
     DSMgr() {
+        LOG_DEBUG("enter DSMgr");
+        countIO = 0;
         useBit = new bit_map[BIT_MAP_SIZE]();
         currFile = nullptr;
         numUsePages = 0;
@@ -22,6 +26,7 @@ public:
     };
 
     ~DSMgr() {
+        LOG_DEBUG("exit DSMgr");
         CloseFile();
         delete[]useBit;
     };
@@ -54,6 +59,9 @@ public:
     int GetFreePageId();
 
 protected:
+    //与disk的IO计数，计算性能参数
+    count_n countIO;
+
     //返回当前文件指针
     FILE* GetFile() { return currFile; };
 

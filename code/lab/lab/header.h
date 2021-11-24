@@ -1,6 +1,9 @@
 #pragma once
 #include "config.h"
+#include "logger.h"
 #include <mutex>
+
+using std::mutex;
 
 #define HASLOWBITS(x, y) ((x) & ((1ULL << (y)) - 1))
 #define CONDSHR(x, y) (HASLOWBITS(x, y) ? (x) : (x) >> (y))
@@ -61,8 +64,9 @@ struct LRU_List {
         tail.pre = &head;
     }
     ~LRU_List() {
+        LOG_DEBUG("exit LRU_List");
         LRU_Node* cur = head.next, * tmp;
-        while (cur != &tail) {
+        while (cur != &tail && cur) {
             tmp = cur;
             cur = cur->next;
             delete tmp;

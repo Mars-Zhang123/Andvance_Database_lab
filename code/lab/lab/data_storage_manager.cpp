@@ -21,7 +21,7 @@ void DSMgr::OpenFile(string filename, bool create_file) {
 			FAILARG("Error allocating pages");
 		delete[]tmp;
 	} else {
-		if (fopen_s(&currFile, (filename).c_str(), "ab+"))
+		if (fopen_s(&currFile, (filename).c_str(), "rb+"))
 			FAIL;
 		if (fread(&numAllocatePages, sizeof(int), 1, currFile) != 1)
 			FAILARG("Error reading element of \"numAllocatePages\" in file");
@@ -29,6 +29,7 @@ void DSMgr::OpenFile(string filename, bool create_file) {
 			FAILARG("Error reading element of \"numUsePages\" in file");
 		if (fread(useBit, sizeof(bit_map), BIT_MAP_SIZE, currFile) != BIT_MAP_SIZE)
 			FAILARG("Error reading element of \"useBit\" in file");
+		//fprintf(stderr, "allocated:%d£¬used:%d", numAllocatePages, numUsePages);
 	}
 }
 
@@ -96,7 +97,7 @@ bool DSMgr::GetUse(int page_id) const {
 bFrame DSMgr::ReadPageFromDSMgr(int page_id) {
 	LOG_DEBUG("execute DSMgr::ReadPageFromDSMgr");
 	if (!GetUse(page_id)) {
-		FAILARG("Prohibit reading unassigned pages");
+		FAILARG("Prohibit reading unused pages");
 	}
 
 	off_t off_set = HEAD_BYTE_SIZE + page_id * off_t(FRAMESIZE);
@@ -104,6 +105,7 @@ bFrame DSMgr::ReadPageFromDSMgr(int page_id) {
 	bFrame ret;
 	if (fread(&ret, sizeof(bFrame), 1, currFile) != 1)
 		FAILARG("Error reading the page in file");
+	countIO++;
 	return ret;
 }
 
@@ -121,6 +123,7 @@ void DSMgr::WritePage(int page_id, bFrame* frm) {
 	if (fwrite(frm, sizeof(bFrame), 1, currFile) != 1)
 		FAILARG("Error writing the page in file");
 	SetUse(page_id, true);
+	countIO++;
 }
 
 void DSMgr::DeletePage(int page_id) {

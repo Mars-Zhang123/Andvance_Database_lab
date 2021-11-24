@@ -2,20 +2,23 @@
 #include "config.h"
 #include "data_storage_manager.h"
 
-using std::mutex;
 
 class BMgr :protected DSMgr {
 public:
     BMgr(string filename, bool create_file) :DSMgr() {
+        countHit = 0;
+        LOG_DEBUG("enter BMgr");
         NumUseFrames = 0;
         frame2page = new int[DEFBUFSIZE];
         page2bcb = new BCB*[DEFBUFSIZE]();
-        buffer = new bFrame[DEFBUFSIZE]();
         isUse = new bool[DEFBUFSIZE]();
+        buffer = new bFrame[DEFBUFSIZE]();
+        
         OpenFile(filename, create_file);
     };
 
     ~BMgr() {
+        LOG_DEBUG("exit BMgr");
         delete[]frame2page;
         for (int idx = 0; idx < DEFBUFSIZE; idx++) {
             BCB *curPtr = page2bcb[idx], *prePtr;
@@ -23,8 +26,9 @@ public:
                 prePtr = curPtr;
                 curPtr = curPtr->next;
 
-                if (prePtr->dirty)
-                    WritePage(prePtr->page_id, buffer + prePtr->frame_id);
+                if (prePtr->dirty) {
+                    WritePage(prePtr->page_id, GetFramePtr(prePtr->frame_id));
+                }
 
                 delete prePtr;
             }
@@ -46,6 +50,9 @@ public:
     virtual void DeletePage(int page_id);
 
 protected:
+    //缓存命中计数
+    count_n countHit;
+
     //返回填充新page的page_id
     virtual int FixNewPage(bFrame* tmp);
 
@@ -53,13 +60,13 @@ protected:
     int UnfixPage(int page_id);
 
     //将page读入buffer，并返回frame_id,由调度策略决定如何选择填充的frame
-    virtual int FillFrame(int page_id) = 0;
+    virtual int FillFrame(int page_id, bool willUpdating = false) = 0;
 
     //选择一个替换页，根据派生类的调度策略决定所替换的页
     virtual int SelectVictim() = 0;
 
     //从buffer中读取页，读取成功返回对应的frame_id，如果frame未加载至buffer，返回-1
-    virtual int ReadPageFromBMgr(int page_id, bFrame*& reader) = 0;
+    virtual int ReadPageFromBMgr(int page_id, bFrame* reader) = 0;
 
     //写页，若直接在buffer中写入成功则返回frame_id，若frame未加载，返回-1
     virtual int WritePageFromBMgr(int page_id, bFrame* writer) = 0;
@@ -83,7 +90,7 @@ protected:
     bFrame* GetFramePtr(int frame_id) { return buffer + frame_id; };
 
     //更新frame2page映射
-    void UpdateFrame2Page(int fid, int pid) { frame2page[pid] = pid; };
+    void UpdateFrame2Page(int fid, int pid) { frame2page[fid] = pid; };
 
     //
     int GetPageId(int frame_id)const { return frame2page[frame_id]; };
@@ -112,4 +119,5 @@ private:
 
     //已使用的frame数
     int NumUseFrames;
+
 };
