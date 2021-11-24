@@ -130,6 +130,7 @@ void DSMgr::DeletePage(int page_id) {
 	LOG_DEBUG("execute DSMgr::DeletePage");
 	//标记为未使用，逻辑上删除，并非物理上删除
 	SetUse(page_id, false);
+	numUsePages--;
 }
 
 int DSMgr::GetFreePageId() {
