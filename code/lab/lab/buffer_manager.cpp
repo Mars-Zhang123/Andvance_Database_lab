@@ -1,4 +1,4 @@
-#include "buffer_manager.h"
+ï»¿#include "buffer_manager.h"
 
 int BMgr::FixNewPage(bFrame *tmp) {
 	LOG_DEBUG("execute BMgr::FixNewPage");
@@ -10,7 +10,7 @@ int BMgr::FixNewPage(bFrame *tmp) {
 int BMgr::UnfixPage(int page_id) {
 	LOG_DEBUG("execute BMgr::UnfixPage");
 	int &count = GetBCB(page_id)->count;
-	count ? count-- : 0/*latch½âËø*/;
+	count ? count-- : 0/*latchè§£é”*/;
 	
 	return 0;
 }
@@ -30,7 +30,7 @@ int BMgr::GetFrameId(int page_id) {
 	LOG_DEBUG("execute BMgr::GetFrameId");
 
 	BCB* bcb = GetBCB(page_id);
-	//Èç¹û·µ»ØµÄbcbÎªnull£¬·µ»Ø-1´ú±í¸Ãpage²»ÔÚbufferÖÐ
+	//å¦‚æžœè¿”å›žçš„bcbä¸ºnullï¼Œè¿”å›ž-1ä»£è¡¨è¯¥pageä¸åœ¨bufferä¸­
 	return bcb ? bcb->frame_id : -1;
 }
 
@@ -57,9 +57,9 @@ void BMgr::WriteDirtys() {
 	for (int idx = 0; idx < DEFBUFSIZE; idx++) {
 		BCB* ptr = page2bcb[idx];
 		while (ptr) {
-			if (ptr->dirty) {//¸ÃÒ³ÊÇÔà£¬ÐèÐ´»Ø
+			if (ptr->dirty) {//è¯¥é¡µæ˜¯è„ï¼Œéœ€å†™å›ž
 				WritePage(ptr->page_id, GetFramePtr(ptr->frame_id));
-				//Çå³ýÔàÎ»
+				//æ¸…é™¤è„ä½
 				SetDirty(ptr->frame_id, false);
 				ptr = ptr->next;
 			}
@@ -85,7 +85,7 @@ void BMgr::InsertBCB(BCB* bcb) {
 	int page_id = bcb->page_id;
 	int idx = page_id % DEFBUFSIZE;
 
-	//Í·²å·¨
+	//å¤´æ’æ³•
 	bcb->next = page2bcb[idx];
 	page2bcb[idx] = bcb;
 
@@ -101,16 +101,16 @@ bool BMgr::RemoveBCB(int frame_id, bool writeBack) {
 	BCB* cur = page2bcb[idx], * pre = cur;
 	while (cur) {
 		if (cur->frame_id == frame_id) {
-			if (pre == cur) {//´ýÉ¾³ýµÄBCBÔÚÁ´Ê×
+			if (pre == cur) {//å¾…åˆ é™¤çš„BCBåœ¨é“¾é¦–
 				page2bcb[idx] = cur->next;
-			} else {//²»ÔÚÁ´Ê×
+			} else {//ä¸åœ¨é“¾é¦–
 				pre->next = cur->next;
 			}
-			if (cur->dirty && writeBack) {//ÔàÊý¾ÝÐèÒªÐ´»Ø
+			if (cur->dirty && writeBack) {//è„æ•°æ®éœ€è¦å†™å›ž
 				WritePage(cur->page_id, GetFramePtr(frame_id));
 			}
 			delete cur;
-			//½«frameµÄ±ê¼ÇÎªÎ´Ê¹ÓÃ
+			//å°†frameçš„æ ‡è®°ä¸ºæœªä½¿ç”¨
 			SetUse(frame_id, false);
 			frame2page[frame_id] = -1;
 			NumUseFrames--;
@@ -127,7 +127,7 @@ void BMgr::DeletePage(int page_id) {
 	LOG_DEBUG("execute BMgr::DeletePage");
 
 	int frame_id = GetFrameId(page_id);
-	if (frame_id != -1) {//¸ÃÒ³ÔÚbufferÖÐ
+	if (frame_id != -1) {//è¯¥é¡µåœ¨bufferä¸­
 		RemoveBCB(frame_id, false);
 	}
 

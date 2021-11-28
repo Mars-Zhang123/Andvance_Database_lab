@@ -1,4 +1,4 @@
-#include "config.h"
+﻿#include "config.h"
 
 const extern int DEFBUFSIZE = 4096;
 const extern string DATAFILE = "data.dbf";

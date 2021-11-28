@@ -1,21 +1,21 @@
-#pragma once
+ï»¿#pragma once
 #include <string>
 
 using std::string;
 
-//Ö¡µÄ´óĞ¡(ÔÚÓ²ÅÌÎªpage£¬Ö÷´æÖĞÎªframe)
+//å¸§çš„å¤§å°(åœ¨ç¡¬ç›˜ä¸ºpageï¼Œä¸»å­˜ä¸­ä¸ºframe)
 #define FRAMESIZE 4096
 
-//»º³åÇø´óĞ¡£¨Ö¡µÄ¸öÊı£©
+//ç¼“å†²åŒºå¤§å°ï¼ˆå¸§çš„ä¸ªæ•°ï¼‰
 const extern int DEFBUFSIZE;
 
-//demoÖĞÊı¾İ¿âËùÓĞdata´æ´¢ÔÚDATAFILEÖĞ£¬µ¥ÎÄ¼ş´æ´¢
+//demoä¸­æ•°æ®åº“æ‰€æœ‰dataå­˜å‚¨åœ¨DATAFILEä¸­ï¼Œå•æ–‡ä»¶å­˜å‚¨
 const extern string  DATAFILE;
 
-//demoÖĞÄ¬ÈÏµ¥¸öÎÄ¼ş×î´óÒ³Êı
+//demoä¸­é»˜è®¤å•ä¸ªæ–‡ä»¶æœ€å¤§é¡µæ•°
 const extern int MAXPAGES;
 
-//ÈÕÖ¾¿ª¹Ø
+//æ—¥å¿—å¼€å…³
 extern bool LOG_ON_OFF;
 
 

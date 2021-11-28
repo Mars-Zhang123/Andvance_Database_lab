@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "config.h"
 #include "data_storage_manager.h"
 
@@ -38,71 +38,71 @@ public:
         delete[]isUse;
     };
 
-    //·µ»Ø¿ÕÏĞ¿ÉÓÃµÄframesµÄ×ÜÊı
+    //è¿”å›ç©ºé—²å¯ç”¨çš„framesçš„æ€»æ•°
     int NumFreeFrames()const { return DEFBUFSIZE - NumUseFrames; };
 
-    //·µ»ØÒ»¸ö¿ÕÏĞµÄframeµÄframe_id£¬Ã»ÓĞÔò·µ»Ø-1
+    //è¿”å›ä¸€ä¸ªç©ºé—²çš„frameçš„frame_idï¼Œæ²¡æœ‰åˆ™è¿”å›-1
     int GetFreeFrameId();
 
-    //´òÓ¡¶ÔÓ¦frameµÄÄÚÈİ
+    //æ‰“å°å¯¹åº”frameçš„å†…å®¹
     void PrintFrame(int frame_id)const { printf("The %d -th frame is: %s\n", frame_id, buffer[frame_id].field); };
 
     virtual void DeletePage(int page_id);
 
 protected:
-    //»º´æÃüÖĞ¼ÆÊı
+    //ç¼“å­˜å‘½ä¸­è®¡æ•°
     count_n countHit;
 
-    //·µ»ØÌî³äĞÂpageµÄpage_id
+    //è¿”å›å¡«å……æ–°pageçš„page_id
     virtual int FixNewPage(bFrame* tmp);
 
-    //½â³ıÒ»´Î¶ÔpageµÄcount
+    //è§£é™¤ä¸€æ¬¡å¯¹pageçš„count
     int UnfixPage(int page_id);
 
-    //½«page¶ÁÈëbuffer£¬²¢·µ»Øframe_id,ÓÉµ÷¶È²ßÂÔ¾ö¶¨ÈçºÎÑ¡ÔñÌî³äµÄframe
+    //å°†pageè¯»å…¥bufferï¼Œå¹¶è¿”å›frame_id,ç”±è°ƒåº¦ç­–ç•¥å†³å®šå¦‚ä½•é€‰æ‹©å¡«å……çš„frame
     virtual int FillFrame(int page_id, bool willUpdating = false) = 0;
 
-    //Ñ¡ÔñÒ»¸öÌæ»»Ò³£¬¸ù¾İÅÉÉúÀàµÄµ÷¶È²ßÂÔ¾ö¶¨ËùÌæ»»µÄÒ³
+    //é€‰æ‹©ä¸€ä¸ªæ›¿æ¢é¡µï¼Œæ ¹æ®æ´¾ç”Ÿç±»çš„è°ƒåº¦ç­–ç•¥å†³å®šæ‰€æ›¿æ¢çš„é¡µ
     virtual int SelectVictim() = 0;
 
-    //´ÓbufferÖĞ¶ÁÈ¡Ò³£¬¶ÁÈ¡³É¹¦·µ»Ø¶ÔÓ¦µÄframe_id£¬Èç¹ûframeÎ´¼ÓÔØÖÁbuffer£¬·µ»Ø-1
+    //ä»bufferä¸­è¯»å–é¡µï¼Œè¯»å–æˆåŠŸè¿”å›å¯¹åº”çš„frame_idï¼Œå¦‚æœframeæœªåŠ è½½è‡³bufferï¼Œè¿”å›-1
     virtual int ReadPageFromBMgr(int page_id, bFrame* reader) = 0;
 
-    //Ğ´Ò³£¬ÈôÖ±½ÓÔÚbufferÖĞĞ´Èë³É¹¦Ôò·µ»Øframe_id£¬ÈôframeÎ´¼ÓÔØ£¬·µ»Ø-1
+    //å†™é¡µï¼Œè‹¥ç›´æ¥åœ¨bufferä¸­å†™å…¥æˆåŠŸåˆ™è¿”å›frame_idï¼Œè‹¥frameæœªåŠ è½½ï¼Œè¿”å›-1
     virtual int WritePageFromBMgr(int page_id, bFrame* writer) = 0;
 
-    //key:page_id£¬value:BCB,H(K)=(page_id)%DEFBUFSIZE,³åÍ»Ôò²éÕÒÒç³ö¶ÓÁĞ
+    //key:page_idï¼Œvalue:BCB,H(K)=(page_id)%DEFBUFSIZE,å†²çªåˆ™æŸ¥æ‰¾æº¢å‡ºé˜Ÿåˆ—
     BCB* GetBCB(int page_id);
 
-    //½«bcb²åÈëµ½¾²Ì¬hashÖĞ,Ê±¼ä¸´ÔÓ¶ÈO(1)
+    //å°†bcbæ’å…¥åˆ°é™æ€hashä¸­,æ—¶é—´å¤æ‚åº¦O(1)
     void InsertBCB(BCB* bcb);
 
-    //É¾³ıÖ¸¶¨BCB£¬ÓÉSelectVictim()µ÷ÓÃ,Ê±¼ä¸´ÔÓ¶ÈO(n),É¾³ı³É¹¦·µ»Øtrue£¬·ñÔòfalse
+    //åˆ é™¤æŒ‡å®šBCBï¼Œç”±SelectVictim()è°ƒç”¨,æ—¶é—´å¤æ‚åº¦O(n),åˆ é™¤æˆåŠŸè¿”å›trueï¼Œå¦åˆ™false
     bool RemoveBCB(int frame_id, bool writeBack = true);
 
-    //µ÷ÓÃGetBCBµÃµ½page_id¶ÔÓ¦BCB²¢·µ»Øframe_id£¬²»´æÔÚ¸Ãpage·µ»Ø-1
+    //è°ƒç”¨GetBCBå¾—åˆ°page_idå¯¹åº”BCBå¹¶è¿”å›frame_idï¼Œä¸å­˜åœ¨è¯¥pageè¿”å›-1
     int GetFrameId(int page_id);
 
-    //ÉèÖÃ¸ÃframeµÄdirtyÎ»
+    //è®¾ç½®è¯¥frameçš„dirtyä½
     void SetDirty(int frame_id, bool isDirty);
 
-    //·µ»Ø¶ÔÓ¦Ö¡µÄÆğÊ¼µØÖ·
+    //è¿”å›å¯¹åº”å¸§çš„èµ·å§‹åœ°å€
     bFrame* GetFramePtr(int frame_id) { return buffer + frame_id; };
 
-    //¸üĞÂframe2pageÓ³Éä
+    //æ›´æ–°frame2pageæ˜ å°„
     void UpdateFrame2Page(int fid, int pid) { frame2page[fid] = pid; };
 
     //
     int GetPageId(int frame_id)const { return frame2page[frame_id]; };
 
 private:
-    //½«frameĞ´»Ødisk
+    //å°†frameå†™å›disk
     void WriteBack(int frame_id);
 
-    //½«ËùÓĞÔàframeĞ´»Ødisk
+    //å°†æ‰€æœ‰è„frameå†™å›disk
     void WriteDirtys();
 
-    //ÉèÖÃ¶ÔÓ¦Ö¡µÄÊ¹ÓÃ±êÖ¾
+    //è®¾ç½®å¯¹åº”å¸§çš„ä½¿ç”¨æ ‡å¿—
     void SetUse(int frame_id, bool _isUse) { isUse[frame_id] = _isUse; };
 
     //key:frame_id, value:page_id
@@ -111,13 +111,13 @@ private:
     //key:page_id, value:ptr(BCB)
     BCB** page2bcb;
 
-    //»º³åÇø
+    //ç¼“å†²åŒº
     bFrame* buffer;
 
-    //»º³åÇøÊ¹ÓÃ±êÖ¾
+    //ç¼“å†²åŒºä½¿ç”¨æ ‡å¿—
     bool* isUse;
 
-    //ÒÑÊ¹ÓÃµÄframeÊı
+    //å·²ä½¿ç”¨çš„frameæ•°
     int NumUseFrames;
 
 };

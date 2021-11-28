@@ -1,17 +1,17 @@
-#pragma once
+ï»¿#pragma once
 #include "buffer_manager.h"
 #include <unordered_map>
 
 using std::unordered_map;
 
-//hash + Ë«ÏòÁ´±í
+//hash + åŒå‘é“¾è¡¨
 class LRU :protected BMgr {
 public:
-	LRU(string filename, bool create_file = false) :BMgr(filename, create_file), capacity(DEFBUFSIZE), BiList() {
+	LRU(string filename, bool create_file = false) :BMgr(filename, create_file), capacity(DEFBUFSIZE), biList() {
 		LOG_DEBUG("enter LRU");
-		//ÖØĞ´headµÄÔªËØframe_idÒâÒå£¬´ú±íË«ÏòÁ´±í³¤¶È£¬³õÊ¼Ë«ÏòÁ´±í³¤¶ÈÖÃÎª0
-		BiList.head.frame_id = 0;
-		frameId2nodePtr = new LRU_Node * [capacity]();
+		//é‡å†™headçš„å…ƒç´ frame_idæ„ä¹‰ï¼Œä»£è¡¨åŒå‘é“¾è¡¨é•¿åº¦ï¼Œåˆå§‹åŒå‘é“¾è¡¨é•¿åº¦ç½®ä¸º0
+		biList.head.frame_id = 0;
+		frameId2nodePtr = new BiNode * [capacity]();
 	};
 	
 	~LRU() {
@@ -19,41 +19,41 @@ public:
 		delete[]frameId2nodePtr;
 	};
 
-	//¶ÁÒ³£¬·µ»Ø¶ÔÓ¦fid
+	//è¯»é¡µï¼Œè¿”å›å¯¹åº”fid
 	int ReadPageFromBMgr(int page_id, bFrame* reader);
 
-	//Ğ´Ò³£¬·µ»Ø¶ÔÓ¦fid
+	//å†™é¡µï¼Œè¿”å›å¯¹åº”fid
 	int WritePageFromBMgr(int page_id, bFrame* writer);
 
 	virtual int FixNewPage(bFrame* tmp);
 
-	//µÃµ½´ÅÅÌio´ÎÊı
+	//å¾—åˆ°ç£ç›˜ioæ¬¡æ•°
 	count_n GetCountIO()const { return countIO; };
 
-	//µÃµ½bufferÃüÖĞ´ÎÊı
+	//å¾—åˆ°bufferå‘½ä¸­æ¬¡æ•°
 	count_n GetCountHit()const { return countHit; };
 
 private:
-	//½«page_id¶ÔÓ¦µÄpage¼ÓÔØµ½buffer£¬Èç¹ûÏÂÒ»²½²Ù×÷²»¸üĞÂÄÚÈİ£¬Ó¦¸Ã¶ÁÈëÄÚ´æ£¬Èç¹û¸üĞÂ£¬ÎŞĞèIO
+	//å°†page_idå¯¹åº”çš„pageåŠ è½½åˆ°bufferï¼Œå¦‚æœä¸‹ä¸€æ­¥æ“ä½œä¸æ›´æ–°å†…å®¹ï¼Œåº”è¯¥è¯»å…¥å†…å­˜ï¼Œå¦‚æœæ›´æ–°ï¼Œæ— éœ€IO
 	int FillFrame(int page_id, bool willUpdating = false);
 
-	//ÏòLRUÁ´±íĞÂÔöframe£¬·µ»Ø²åÈë²Ù×÷ºóµÄË«ÏòÁ´±í³¤¶È£¨Í·²å·¨£©
+	//å‘LRUé“¾è¡¨æ–°å¢frameï¼Œè¿”å›æ’å…¥æ“ä½œåçš„åŒå‘é“¾è¡¨é•¿åº¦ï¼ˆå¤´æ’æ³•ï¼‰
 	int InsertLRU(int frame_id);
 
-	//Ñ¡ÔñÒ»¸ö½«±»Ìæ»»µÄframe£¬Èç¹ûdirtyÉúĞ§£¬Ğ´»Ødisk£¬·µ»ØÖÃ»»µÄframe_id£¨É¾³ıÎ²²¿£©
+	//é€‰æ‹©ä¸€ä¸ªå°†è¢«æ›¿æ¢çš„frameï¼Œå¦‚æœdirtyç”Ÿæ•ˆï¼Œå†™å›diskï¼Œè¿”å›ç½®æ¢çš„frame_idï¼ˆåˆ é™¤å°¾éƒ¨ï¼‰
 	virtual int SelectVictim();
 
-	//µ±»º´æÖĞÄ³Ò³±»ÃüÖĞÊ±µ÷ÓÃ£¬¸üĞÂLRU±í
+	//å½“ç¼“å­˜ä¸­æŸé¡µè¢«å‘½ä¸­æ—¶è°ƒç”¨ï¼Œæ›´æ–°LRUè¡¨
 	void UpdateLRU(int frame_id);
 
 
 
-	//Ë«ÏòÁ´±íµÄÈİÁ¿
+	//åŒå‘é“¾è¡¨çš„å®¹é‡
 	const int capacity;
 
-	//Ë«ÏòÁ´±í
-	LRU_List BiList;
+	//åŒå‘é“¾è¡¨
+	BiList biList;
 
-	//hash£¬key:frame_id£¬value:ptr(LRU_Node)
-	LRU_Node** frameId2nodePtr;
+	//hashï¼Œkey:frame_idï¼Œvalue:ptr(BiNode)
+	BiNode** frameId2nodePtr;
 };

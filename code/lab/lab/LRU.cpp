@@ -1,15 +1,15 @@
-#include "LRU.h"
+ï»¿#include "LRU.h"
 
-int LRU::FixNewPage(bFrame* tmp) {//Ğ´ĞÂÒ³²¢¼ÓÈë»º´æ
+int LRU::FixNewPage(bFrame* tmp) {//å†™æ–°é¡µå¹¶åŠ å…¥ç¼“å­˜
 	LOG_DEBUG("execute LRU::FixNewPage");
 
 	int page_id = BMgr::FixNewPage(tmp);
 	int frame_id = GetFreeFrameId();
-	if (frame_id == -1) {//²»´æÔÚ¿ÕÏĞframe
+	if (frame_id == -1) {//ä¸å­˜åœ¨ç©ºé—²frame
 		frame_id = SelectVictim();
 		if (frame_id == -1) { FAIL; };
 	}
-	else {//´æÔÚ¿ÕÏĞframe
+	else {//å­˜åœ¨ç©ºé—²frame
 		;
 	}
 
@@ -29,14 +29,14 @@ int LRU::FillFrame(int page_id, bool willUpdating) {
 	LOG_DEBUG("execute LRU::FillFrame");
 
 	int frame_id = GetFreeFrameId();
-	if (frame_id == -1) {//²»´æÔÚ¿ÕÏĞframe
+	if (frame_id == -1) {//ä¸å­˜åœ¨ç©ºé—²frame
 		frame_id = SelectVictim();
 		if (frame_id == -1) { FAIL; };
-	} else {//´æÔÚ¿ÕÏĞframe
+	} else {//å­˜åœ¨ç©ºé—²frame
 		;
 	}
 
-	if (!willUpdating) {//Èç¹ûÏÂÒ»²½²Ù×÷²»¸üĞÂ£¬Ó¦¸Ã½øĞĞÒ»´Î´ÅÅÌIO£¬¼´ÕæÕıÒâÒåÉÏ¶ÁÈ¡disk
+	if (!willUpdating) {//å¦‚æœä¸‹ä¸€æ­¥æ“ä½œä¸æ›´æ–°ï¼Œåº”è¯¥è¿›è¡Œä¸€æ¬¡ç£ç›˜IOï¼Œå³çœŸæ­£æ„ä¹‰ä¸Šè¯»å–disk
 		bFrame content = ReadPageFromDSMgr(page_id);
 		memcpy(GetFramePtr(frame_id)->field, content.field, FRAMESIZE);
 	}
@@ -54,37 +54,37 @@ int LRU::FillFrame(int page_id, bool willUpdating) {
 int LRU::InsertLRU(int frame_id) {
 	LOG_DEBUG("execute LRU::InsertLRU");
 
-	//headµÄframe_idÔªËØÒâÒåÖØĞ´£¬±íÊ¾Ë«ÏòÁ´±íµÄµ±Ç°³¤¶È
-	while (BiList.head.frame_id >= capacity) {//»º³åÇøÒÑÂú
-		SelectVictim();//ÌÔÌ­×î¾ÃÎ´Ê¹ÓÃµÄÒ³
+	//headçš„frame_idå…ƒç´ æ„ä¹‰é‡å†™ï¼Œè¡¨ç¤ºåŒå‘é“¾è¡¨çš„å½“å‰é•¿åº¦
+	while (biList.head.frame_id >= capacity) {//ç¼“å†²åŒºå·²æ»¡
+		SelectVictim();//æ·˜æ±°æœ€ä¹…æœªä½¿ç”¨çš„é¡µ
 	}
 
-	//²åÈëÒ»¸öÔªËØ£¬¶ÔÓ¦³¤¶È+1
-	BiList.head.frame_id++;
-	LRU_Node* tmp = new LRU_Node();
+	//æ’å…¥ä¸€ä¸ªå…ƒç´ ï¼Œå¯¹åº”é•¿åº¦+1
+	biList.head.frame_id++;
+	BiNode* tmp = new BiNode();
 	tmp->frame_id = frame_id;
-	tmp->pre = &(BiList.head);
-	tmp->next = BiList.head.next;
+	tmp->pre = &(biList.head);
+	tmp->next = biList.head.next;
 	tmp->next->pre = tmp;
-	BiList.head.next = tmp;
+	biList.head.next = tmp;
 	frameId2nodePtr[frame_id] = tmp;
 
-	return BiList.head.frame_id;
+	return biList.head.frame_id;
 }
 
 int LRU::SelectVictim() {
 	LOG_DEBUG("execute LRU::SelectVictim");
 
-	if (BiList.head.frame_id < capacity) {//ÎŞĞèÌæ»»£¬buffer´æÔÚÊ£Óà¿Õ¼ä
+	if (biList.head.frame_id < capacity) {//æ— éœ€æ›¿æ¢ï¼Œbufferå­˜åœ¨å‰©ä½™ç©ºé—´
 		return -1;
 	}
 
-	//É¾³ıÒ»¸öÔªËØ£¬¶ÔÓ¦³¤¶È-1
-	BiList.head.frame_id--;
-	LRU_Node* tmp = BiList.tail.pre;
+	//åˆ é™¤ä¸€ä¸ªå…ƒç´ ï¼Œå¯¹åº”é•¿åº¦-1
+	biList.head.frame_id--;
+	BiNode* tmp = biList.tail.pre;
 	int frame_id = tmp->frame_id;
-	BiList.tail.pre = tmp->pre;
-	tmp->pre->next = &(BiList.tail);
+	biList.tail.pre = tmp->pre;
+	tmp->pre->next = &(biList.tail);
 	if (!RemoveBCB(frame_id)) { FAIL; };
 	delete tmp;
 	frameId2nodePtr[frame_id] = nullptr;
@@ -94,23 +94,23 @@ int LRU::SelectVictim() {
 void LRU::UpdateLRU(int frame_id) {
 	LOG_DEBUG("execute LRU::UpdateLRU");
 
-	LRU_Node* tmp = frameId2nodePtr[frame_id];
+	BiNode* tmp = frameId2nodePtr[frame_id];
 	if (!tmp) { FAIL; };
 	tmp->pre->next = tmp->next;
 	tmp->next->pre = tmp->pre;
-	tmp->pre = &(BiList.head);
-	tmp->next = BiList.head.next;
+	tmp->pre = &(biList.head);
+	tmp->next = biList.head.next;
 	tmp->next->pre = tmp;
-	BiList.head.next = tmp;
+	biList.head.next = tmp;
 }
 
 int LRU::ReadPageFromBMgr(int page_id, bFrame* reader) {
 	LOG_DEBUG("execute LRU::ReadPageFromBMgr");
 
 	int frame_id = GetFrameId(page_id);
-	if (frame_id == -1) {//Î´ÃüÖĞ
+	if (frame_id == -1) {//æœªå‘½ä¸­
 		frame_id = FillFrame(page_id);
-	} else {//ÃüÖĞ
+	} else {//å‘½ä¸­
 		UpdateLRU(frame_id);
 		countHit++;
 	}
@@ -124,9 +124,9 @@ int LRU::WritePageFromBMgr(int page_id, bFrame* writer) {
 	LOG_DEBUG("execute LRU::WritePageFromBMgr");
 
 	int frame_id = GetFrameId(page_id);
-	if (frame_id == -1) {//Î´ÃüÖĞ
+	if (frame_id == -1) {//æœªå‘½ä¸­
 		frame_id = FillFrame(page_id, true);
-	} else {//ÃüÖĞ
+	} else {//å‘½ä¸­
 		UpdateLRU(frame_id);
 		countHit++;
 	}
@@ -135,7 +135,7 @@ int LRU::WritePageFromBMgr(int page_id, bFrame* writer) {
 	bFrame* frame = GetFramePtr(frame_id);
 	memcpy(frame->field, writer->field, sizeof(bFrame));
 
-	//¸ÃÒ³ÉèÎªÔà
+	//è¯¥é¡µè®¾ä¸ºè„
 	SetDirty(frame_id, true);
 
 	return frame_id;

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "config.h"
 #include "logger.h"
 #include <mutex>
@@ -20,25 +20,25 @@ using std::mutex;
 #define CONDADD62(x) (CONDADD60(x) + CONDADD(CONDSHR60(x), 2))
 #define CONDADD63(x) (CONDADD62(x) + CONDADD(CONDSHR62(x), 1))
 
-// FIRSTSIGN(x) µÃµ½×îµÍÎ»1³öÏÖµÄÎ»ÖÃ£¬·µ»ØÖµ·¶Î§[0,64],64´ú±íÈ«Îª0,´Ócsdn×ªÔØ
+// FIRSTSIGN(x) å¾—åˆ°æœ€ä½Žä½1å‡ºçŽ°çš„ä½ç½®ï¼Œè¿”å›žå€¼èŒƒå›´[0,64],64ä»£è¡¨å…¨ä¸º0,ä»Žcsdnè½¬è½½
 #define FIRSTSIGN(x) (x ? CONDADD63((uint64_t)x) : 64)
-/*Ô­ÎÄÁ´½Ó£ºhttps ://blog.csdn.net/weixin_44327262/article/details/105903271*/
+/*åŽŸæ–‡é“¾æŽ¥ï¼šhttps ://blog.csdn.net/weixin_44327262/article/details/105903271*/
 
 using std::mutex;
 
-//¶¨ÒåÖ¡½á¹¹
+//å®šä¹‰å¸§ç»“æž„
 struct bFrame {
     char field[FRAMESIZE];
 };
 
-//Buffer Control Blocks£¬»º³å¿ØÖÆ¿é
+//Buffer Control Blocksï¼Œç¼“å†²æŽ§åˆ¶å—
 struct BCB {
     int page_id;
     int frame_id;
-    mutex latch;//ÄÚ´æËø,²¢·¢¿ØÖÆ³ÌÐòÊ¹ÓÃ
-    int count;//±»·ÃÎÊ¼ÆÊý
-    bool dirty;//Ôà±êÖ¾
-    BCB* next;//ÓÃÓÚ¹¹ÔìÒç³öÁ´
+    mutex latch;//å†…å­˜é”,å¹¶å‘æŽ§åˆ¶ç¨‹åºä½¿ç”¨
+    int count;//è¢«è®¿é—®è®¡æ•°
+    bool dirty;//è„æ ‡å¿—
+    BCB* next;//ç”¨äºŽæž„é€ æº¢å‡ºé“¾
 
     BCB() :page_id(-1), frame_id(-1), count(0), dirty(false), next(nullptr) {};
 
@@ -48,24 +48,24 @@ struct BCB {
     }
 };
 
-struct LRU_Node {
+struct BiNode {
     int frame_id;
-    LRU_Node* next;
-    LRU_Node* pre;
-    LRU_Node() :next(nullptr), pre(nullptr) {};
+    BiNode* next;
+    BiNode* pre;
+    BiNode() :next(nullptr), pre(nullptr) {};
 };
 
-struct LRU_List {
-    LRU_Node head;
-    LRU_Node tail;
-    LRU_List() {
-        head.frame_id = 0;//headµÄframe_id¼ÇÂ¼µ±Ç°Ë«ÏòÁ´±í½ÚµãÊý
+struct BiList {
+    BiNode head;
+    BiNode tail;
+    BiList() {
+        head.frame_id = 0;//headçš„frame_idè®°å½•å½“å‰åŒå‘é“¾è¡¨èŠ‚ç‚¹æ•°
         head.next = &tail;
         tail.pre = &head;
     }
-    ~LRU_List() {
-        LOG_DEBUG("exit LRU_List");
-        LRU_Node* cur = head.next, * tmp;
+    ~BiList() {
+        LOG_DEBUG("exit BiList");
+        BiNode* cur = head.next, * tmp;
         while (cur != &tail && cur) {
             tmp = cur;
             cur = cur->next;

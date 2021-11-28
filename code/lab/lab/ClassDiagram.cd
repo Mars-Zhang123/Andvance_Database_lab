@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="BMgr">
+    <Position X="7.75" Y="4.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>BACAIECAACgBJAAAAQIAQhYAAAABACAEgARAAAQAAhQ=</HashCode>
+      <FileName>buffer_manager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DSMgr">
+    <Position X="1.5" Y="3" Width="2.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Typedef Name="DSMgr::count_n" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>data_storage_manager.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="DSMgr::off_t" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>data_storage_manager.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="DSMgr::bit_map" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>data_storage_manager.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>ABBIEEAggAAAAgEACAgBAAQAEABIAFAFAQAUCAAAABA=</HashCode>
+      <FileName>data_storage_manager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LRU">
+    <Position X="4.75" Y="6" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AACAAACAAgABAIAIAQIAQgAAAAAwAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>LRU.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TwoQueues">
+    <Position X="11" Y="5.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AACAIACACgABAAAAAwIiwgAAEAAAAAgAAAAAAAAAACA=</HashCode>
+      <FileName>two_queues.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="bFrame">
+    <Position X="14" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>header.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="BCB">
+    <Position X="19.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgADAAAAAAAAAAIBAQAQAAAAAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>header.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="BiNode">
+    <Position X="17.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAAAAAAAABAAAAAAAAAQAAAAAAAAIAAAA=</HashCode>
+      <FileName>header.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="BiList">
+    <Position X="15.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAACAAAAAAAAAAAAAAAIAAAAAAgA=</HashCode>
+      <FileName>header.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "buffer_manager.h"
 
 class TwoQueues :protected BMgr {
@@ -6,14 +6,14 @@ public:
 	TwoQueues(string filename, bool create_file = false) :BMgr(filename, create_file), 
 														  cold(), hot() ,capacity(DEFBUFSIZE){
 		LOG_DEBUG("eneter TwoQueues");
-		//tailÔªËØµÄframe_idÒâÒåÖØ¹¹£¬´ú±íµ±Ç°¶ÓÁĞ³¤¶ÈÉÏÏŞ
-		//2QËã·¨Í¨³£ÈÈÒ³»º´æÊ±ÀäÒ³µÄ3±¶
+		//tailå…ƒç´ çš„frame_idæ„ä¹‰é‡æ„ï¼Œä»£è¡¨å½“å‰é˜Ÿåˆ—é•¿åº¦ä¸Šé™
+		//2Qç®—æ³•é€šå¸¸çƒ­é¡µç¼“å­˜æ—¶å†·é¡µçš„3å€
 		int maxNumcoldPages = capacity / 4;
 		cold.tail.frame_id = maxNumcoldPages;
 		hot.tail.frame_id = capacity - maxNumcoldPages;
 
-		frameId2coldPtr = new LRU_Node * [capacity]();
-		frameId2hotPtr = new LRU_Node * [capacity]();
+		frameId2coldPtr = new BiNode * [capacity]();
+		frameId2hotPtr = new BiNode * [capacity]();
 	}
 
 	~TwoQueues() {
@@ -23,43 +23,48 @@ public:
 		delete[]frameId2hotPtr;
 	}
 
-	//¶ÁÒ³£¬·µ»Ø¶ÔÓ¦fid
+	//è¯»é¡µï¼Œè¿”å›å¯¹åº”fid
 	int ReadPageFromBMgr(int page_id, bFrame* reader);
 
-	//Ğ´Ò³£¬·µ»Ø¶ÔÓ¦fid
+	//å†™é¡µï¼Œè¿”å›å¯¹åº”fid
 	int WritePageFromBMgr(int page_id, bFrame* writer);
 
 	virtual int FixNewPage(bFrame* tmp);
 
-	//µÃµ½´ÅÅÌio´ÎÊı
+	//å¾—åˆ°ç£ç›˜ioæ¬¡æ•°
 	count_n GetCountIO()const { return countIO; };
 
-	//µÃµ½bufferÃüÖĞ´ÎÊı
+	//å¾—åˆ°bufferå‘½ä¸­æ¬¡æ•°
 	count_n GetCountHit()const { return countHit; };
 
 private:
-	//½«page_id¶ÔÓ¦µÄpage¼ÓÔØµ½buffer£¬Èç¹ûÏÂÒ»²½²Ù×÷²»¸üĞÂÄÚÈİ£¬Ó¦¸Ã¶ÁÈëÄÚ´æ£¬Èç¹û¸üĞÂ£¬ÎŞĞèIO
+	//å°†page_idå¯¹åº”çš„pageåŠ è½½åˆ°bufferï¼Œå¦‚æœä¸‹ä¸€æ­¥æ“ä½œä¸æ›´æ–°å†…å®¹ï¼Œåº”è¯¥è¯»å…¥å†…å­˜ï¼Œå¦‚æœæ›´æ–°ï¼Œæ— éœ€IO
 	int FillFrame(int page_id, bool willUpdating = false);
 
-	//Ïò2QĞÂÔöframe£¬·µ»Ø²åÈëºó»º´æÖĞframe¸öÊı
-	int Insert2Q(int frame_id);
+	//å‘2Qæ–°å¢frameï¼Œè¿”å›æ’å…¥åç¼“å­˜ä¸­frameä¸ªæ•°
+	//å¦‚æœæ’å…¥åœ¨å†·é¡µï¼Œåˆ™willInsertColdä¸ºtrueï¼Œå¦åˆ™ä¸ºfalse
+	int Insert2Q(int frame_id, bool willInsertCold);
 
-	//Ñ¡ÔñÒ»¸ö½«±»Ìæ»»µÄframe
+	//é€‰æ‹©ä¸€ä¸ªå°†è¢«æ›¿æ¢çš„frame,æ ¹æ®æˆå‘˜å˜é‡willDeleteColdFrameå†³å®šå¾…åˆ é™¤Frameæ‰€åœ¨çš„è¡¨
 	virtual int SelectVictim();
 
-	//µ±»º´æÖĞÄ³Ò³±»ÃüÖĞÊ±µ÷ÓÃ£¬¸üĞÂ2Q
+	//å½“ç¼“å­˜ä¸­æŸé¡µè¢«å‘½ä¸­æ—¶è°ƒç”¨ï¼Œæ›´æ–°2Q
 	void Update2Q(int frame_id);
 
-	//2Q±¾ÖÊ»¹ÊÇLRU£¬ÓëLRU2²»Í¬£¬Á½¸ö¶ÓÁĞframe_id¶¼ÔÚbuffer¡£
-	//ÀäÒ³£º×î½üÖ»·ÃÎÊ1´Î¡£ÈÈÒ³£º×î½ü·ÃÎÊ´ÎÊı´óÓÚ1
-	LRU_List cold, hot;
+	//é…åˆInsert2Qå’ŒSelectVictimä½¿ç”¨ï¼Œç”¨äºæŒ‡å®šå¾…æ·˜æ±°é¡µæ‰€åœ¨çš„é“¾è¡¨
+	//å¦‚æœæ·˜æ±°å†·é¡µï¼Œåˆ™willDeleteColdFrameä¸ºtrueï¼Œå¦åˆ™ä¸ºfalse
+	bool willDeleteColdFrame;
 
-	//»º´æÈİÁ¿
+	//2Qæœ¬è´¨è¿˜æ˜¯LRUï¼Œä¸LRU2ä¸åŒï¼Œä¸¤ä¸ªé˜Ÿåˆ—frame_idéƒ½åœ¨bufferã€‚
+	//å†·é¡µï¼šæœ€è¿‘åªè®¿é—®1æ¬¡ã€‚çƒ­é¡µï¼šæœ€è¿‘è®¿é—®æ¬¡æ•°å¤§äº1
+	BiList cold, hot;
+
+	//ç¼“å­˜å®¹é‡
 	const int capacity;
 
-	//ÀäÒ³hash, key:frame_id£¬value:ptr(LRU_Node)
-	LRU_Node** frameId2coldPtr;
+	//å†·é¡µhash, key:frame_idï¼Œvalue:ptr(BiNode),FIFO
+	BiNode** frameId2coldPtr;
 
-	//ÈÈÒ³hash, key:frame_id£¬value:ptr(LRU_Node)
-	LRU_Node** frameId2hotPtr;
+	//çƒ­é¡µhash, key:frame_idï¼Œvalue:ptr(BiNode)
+	BiNode** frameId2hotPtr;
 };

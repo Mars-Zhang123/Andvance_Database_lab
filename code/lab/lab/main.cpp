@@ -1,4 +1,5 @@
-#include "LRU.h"
+ï»¿#include "LRU.h"
+#include "two_queues.h"
 #include <iostream>
 #include <string>
 #include <list>
@@ -10,28 +11,30 @@ using std::make_pair;
 using std::stoi;
 
 void Check() {
-	//¶ÁĞ´²âÊÔ£¬²âÊÔÁË3500Ò³ºÍ3501Ò³¶ÁĞ´²âÊÔ
-	//Ç°Ìá£ºCreateFileÍê³É£¬½øĞĞÒ³¶ÁÈ¡ºÍÒ³Ğ´Èë£¬selectVictimÔÚcreatefile¹ı³Ìµ÷ÓÃFixNewPageÒÑ¾­²âÊÔÍê³É£¡
+	//è¯»å†™æµ‹è¯•ï¼Œæµ‹è¯•äº†3500é¡µå’Œ3501é¡µè¯»å†™æµ‹è¯•
+	//å‰æï¼šCreateFileå®Œæˆï¼Œè¿›è¡Œé¡µè¯»å–å’Œé¡µå†™å…¥ï¼ŒselectVictimåœ¨createfileè¿‡ç¨‹è°ƒç”¨FixNewPageå·²ç»æµ‹è¯•å®Œæˆï¼
 	LOG_ON_OFF = false;
+	//TwoQueues obj(DATAFILE, false);
 	LRU obj(DATAFILE, false);
 	bFrame tmp, AAA;
-	printf("¶ÁÒ³3500,¶ÔÓ¦fid£º%d\n", obj.ReadPageFromBMgr(3500, &tmp));
+	printf("è¯»é¡µ3500,å¯¹åº”fidï¼š%d\n", obj.ReadPageFromBMgr(3500, &tmp));
 	printf("%s\n", tmp.field);
-	printf("¶ÁÒ³3501,¶ÔÓ¦fid£º%d\n", obj.ReadPageFromBMgr(3501, &tmp));
+	printf("è¯»é¡µ3501,å¯¹åº”fidï¼š%d\n", obj.ReadPageFromBMgr(3501, &tmp));
 	printf("%s\n", tmp.field);
 	memcpy(tmp.field, "update3500", sizeof(tmp));
-	printf("Ğ´Ò³3500,¶ÔÓ¦fid£º%d\n", obj.WritePageFromBMgr(3500, &tmp));
-	printf("¶ÁÒ³3500,¶ÔÓ¦fid£º%d\n", obj.ReadPageFromBMgr(3500, &AAA));
+	printf("å†™é¡µ3500,å¯¹åº”fidï¼š%d\n", obj.WritePageFromBMgr(3500, &tmp));
+	printf("è¯»é¡µ3500,å¯¹åº”fidï¼š%d\n", obj.ReadPageFromBMgr(3500, &AAA));
 	printf("%s\n", AAA.field);
 	memcpy(tmp.field, "update3501", sizeof(tmp));
-	printf("Ğ´Ò³3501,¶ÔÓ¦fid£º%d\n", obj.WritePageFromBMgr(3501, &tmp));
-	printf("¶ÁÒ³3501,¶ÔÓ¦fid£º%d\n", obj.ReadPageFromBMgr(3501, &AAA));
+	printf("å†™é¡µ3501,å¯¹åº”fidï¼š%d\n", obj.WritePageFromBMgr(3501, &tmp));
+	printf("è¯»é¡µ3501,å¯¹åº”fidï¼š%d\n", obj.ReadPageFromBMgr(3501, &AAA));
 	printf("%s\n", AAA.field);
 }
 
 void CreateFile() {
-	LRU obj(DATAFILE, true);
-	//´´Ôì50000¸öĞÂÒ³
+	//LRU obj(DATAFILE, true);
+	TwoQueues obj(DATAFILE, true);
+	//åˆ›é€ 50000ä¸ªæ–°é¡µ
 	for (int cnt = 0; cnt < 50064; cnt++) {
 		bFrame tmp;
 		memcpy(&tmp, ("test" + to_string(cnt)).c_str(), sizeof(bFrame));
@@ -39,7 +42,7 @@ void CreateFile() {
 	}
 }
 
-void TestLRU() {
+void Test() {
 	FILE* in_fp;
 	if (fopen_s(&in_fp, "G:/Advanced_database/Andvance_Database_lab/data-5w-50w-zipf.txt", "r+"))
 		FAIL;
@@ -55,20 +58,21 @@ void TestLRU() {
 	}
 	fclose(in_fp);
 	clock_t start, end;
-	LRU obj(DATAFILE, false);
+	TwoQueues obj(DATAFILE, false);
+	//LRU obj(DATAFILE, false);
 	bFrame writer, reader;
 	memcpy(writer.field, "update", sizeof(writer));
 	start = clock();
-	int cnt = 0;//·ÃÎÊ¼ÆÊı
+	int cnt = 0;//è®¿é—®è®¡æ•°
 	for (auto& it : cmds) {
 		cnt++;
 		//fprintf(stderr, "vis page:%d\n", it.second);
-		if (it.first == 0) {//¶Á
+		if (it.first == 0) {//è¯»
 			obj.ReadPageFromBMgr(it.second, &reader);
-		} else {//Ğ´
+		} else {//å†™
 			obj.WritePageFromBMgr(it.second, &writer);
 		}
-		//Ğ´Èë´ÅÅÌio´ÎÊıºÍbufferÃüÖĞ´ÎÊı
+		//å†™å…¥ç£ç›˜ioæ¬¡æ•°å’Œbufferå‘½ä¸­æ¬¡æ•°
 		printf("%u,%u\n", obj.GetCountIO(), obj.GetCountHit());
 	}
 	end = clock();
@@ -88,6 +92,7 @@ void Init() {
 int main() {
 	Init();
 	CreateFile();
-	TestLRU();
+	Test();
+	//Check();
 	return 0;
 }

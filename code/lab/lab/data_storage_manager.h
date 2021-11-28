@@ -1,18 +1,18 @@
-#pragma once
+ï»¿#pragma once
 #include "config.h"
 #include "header.h"
 #include "logger.h"
 
 
 
-//¶¨ÒåÊı¾İ´æ´¢¹ÜÀíÆ÷
+//å®šä¹‰æ•°æ®å­˜å‚¨ç®¡ç†å™¨
 class DSMgr {
 public:
-    //¼ÆÊıÀàĞÍ
+    //è®¡æ•°ç±»å‹
     typedef unsigned int count_n;
-    //ÔÚ¸ÃÀàÖĞÖØĞÂ¶¨Òåoff_t(±àÒëÆ÷Ä¬ÈÏµÄoff_tÎªintÀàĞÍ)
+    //åœ¨è¯¥ç±»ä¸­é‡æ–°å®šä¹‰off_t(ç¼–è¯‘å™¨é»˜è®¤çš„off_tä¸ºintç±»å‹)
     typedef long long off_t;
-    //Ò»¸öbitmapÄÜ¼ÇÂ¼64¸öpageÊ¹ÓÃÇé¿ö
+    //ä¸€ä¸ªbitmapèƒ½è®°å½•64ä¸ªpageä½¿ç”¨æƒ…å†µ
     typedef unsigned long long bit_map;
 
     DSMgr() {
@@ -21,7 +21,7 @@ public:
         useBit = new bit_map[BIT_MAP_SIZE]();
         currFile = nullptr;
         numUsePages = 0;
-        //Ä¬ÈÏ³õÊ¼Ô¤·ÖÅä16¸öbit_map¼ÇÂ¼µÄpageÊı
+        //é»˜è®¤åˆå§‹é¢„åˆ†é…16ä¸ªbit_mapè®°å½•çš„pageæ•°
         numAllocatePages = NUM_PAGES_OF_BIT_MAP * 16;
     };
 
@@ -31,75 +31,75 @@ public:
         delete[]useBit;
     };
 
-    //´ò¿ªÖ¸¶¨ÎÄ¼şÃûµÄÎÄ¼ş
+    //æ‰“å¼€æŒ‡å®šæ–‡ä»¶åçš„æ–‡ä»¶
     void OpenFile(string filename, bool create_file);
 
-    //¹Ø±ÕÊı¾İÎÄ¼ş
+    //å…³é—­æ•°æ®æ–‡ä»¶
     void CloseFile();
 
-    //´Ópage_id¶ÔÓ¦µÄÒ³¶ÁÈ¡Êı¾İ£¬ÓÉ»º³å¹ÜÀíÆ÷µÄFillFrameº¯Êıµ÷ÓÃ
+    //ä»page_idå¯¹åº”çš„é¡µè¯»å–æ•°æ®ï¼Œç”±ç¼“å†²ç®¡ç†å™¨çš„FillFrameå‡½æ•°è°ƒç”¨
     bFrame ReadPageFromDSMgr(int page_id);
 
-    //µ±frame´Ó»º³åÇøÈ¡³öÊ±µ÷ÓÃ£¬½«Êı¾İ±£´æÖÁÎÄ¼ş
+    //å½“frameä»ç¼“å†²åŒºå–å‡ºæ—¶è°ƒç”¨ï¼Œå°†æ•°æ®ä¿å­˜è‡³æ–‡ä»¶
     void WritePage(int page_id, bFrame *frm);
     
-    //·µ»ØÒÑÊ¹ÓÃÒ³ÃæÊı
+    //è¿”å›å·²ä½¿ç”¨é¡µé¢æ•°
     int GetNumUsePages()const { return numUsePages; };
 
-    //·µ»Ø·ÖÅäµÄÒ³ÃæÊı
+    //è¿”å›åˆ†é…çš„é¡µé¢æ•°
     int GetNumAllocatedPages()const { return numAllocatePages; };
 
-    //·µ»Øpage_id¶ÔÓ¦¶ÔÓ¦pageµÄuse_bit
+    //è¿”å›page_idå¯¹åº”å¯¹åº”pageçš„use_bit
     bool GetUse(int page_id)const;
 
-    //ÕûÀíÎÄ¼ş£¬Ê¹´æ´¢Êı¾İÁ¬Ğø£¬²¢ÇÒÎïÀíÉÏÉ¾³ı¶àÓà¿Õ¼ä£¨Áô64*2Ô¤´æÒ³£©£¬½ÏÎªºÄÊ±£¬´ËÏîÄ¿Î´ÊµÏÖ¸Ãº¯Êı
+    //æ•´ç†æ–‡ä»¶ï¼Œä½¿å­˜å‚¨æ•°æ®è¿ç»­ï¼Œå¹¶ä¸”ç‰©ç†ä¸Šåˆ é™¤å¤šä½™ç©ºé—´ï¼ˆç•™64*2é¢„å­˜é¡µï¼‰ï¼Œè¾ƒä¸ºè€—æ—¶ï¼Œæ­¤é¡¹ç›®æœªå®ç°è¯¥å‡½æ•°
     void TidyAndClean() {};
 
-    //µÃµ½Ò»¸ö½ÏÎª¿¿Ç°µÄÎ´Ê¹ÓÃµÄpage_id£¬¸Ãº¯Êı¿ÉÄÜ¸Ä±änumAllocatedPagesÖµ
+    //å¾—åˆ°ä¸€ä¸ªè¾ƒä¸ºé å‰çš„æœªä½¿ç”¨çš„page_idï¼Œè¯¥å‡½æ•°å¯èƒ½æ”¹å˜numAllocatedPageså€¼
     int GetFreePageId();
 
 protected:
-    //ÓëdiskµÄIO¼ÆÊı£¬¼ÆËãĞÔÄÜ²ÎÊı
+    //ä¸diskçš„IOè®¡æ•°ï¼Œè®¡ç®—æ€§èƒ½å‚æ•°
     count_n countIO;
 
-    //·µ»Øµ±Ç°ÎÄ¼şÖ¸Õë
+    //è¿”å›å½“å‰æ–‡ä»¶æŒ‡é’ˆ
     FILE* GetFile() { return currFile; };
 
-    //ÒÑÊ¹ÓÃÒ³ÃæÊı+1
+    //å·²ä½¿ç”¨é¡µé¢æ•°+1
     void AddNumUsePages() { numUsePages++; };
 
-    //Âß¼­²ãÃæÉ¾³ıÖ¸¶¨µÄÒ³
+    //é€»è¾‘å±‚é¢åˆ é™¤æŒ‡å®šçš„é¡µ
     virtual void DeletePage(int page_id);
 
-    //ÒÆ¶¯ÎÄ¼şÖ¸Õë
+    //ç§»åŠ¨æ–‡ä»¶æŒ‡é’ˆ
     void Seek(off_t offset);
 
-    //Ôö¼ÓÎÄ¼ş·ÖÅäÒ³,Ã¿´ÎÔö¼Ó4*sizeof(bit_map)Ò³
+    //å¢åŠ æ–‡ä»¶åˆ†é…é¡µ,æ¯æ¬¡å¢åŠ 4*sizeof(bit_map)é¡µ
     void AddAllocatePages();
 
-    //ÉèÖÃpage_idµÄuse_bit,true:ÒÑÊ¹ÓÃ,false:Î´Ê¹ÓÃ
+    //è®¾ç½®page_idçš„use_bit,true:å·²ä½¿ç”¨,false:æœªä½¿ç”¨
     void SetUse(int page_id, bool isUse);
 
 private:
-    //µ±Ç°ÎÄ¼şµÄÖ¸Õë
+    //å½“å‰æ–‡ä»¶çš„æŒ‡é’ˆ
     FILE* currFile;
     
-    //µ±Ç°ÒÑÉêÇëÒ³ÃæÊı
+    //å½“å‰å·²ç”³è¯·é¡µé¢æ•°
     int numAllocatePages;
 
-    //µ±Ç°ÒÑÊ¹ÓÃÒ³ÃæÊı
+    //å½“å‰å·²ä½¿ç”¨é¡µé¢æ•°
     int numUsePages;
 
-    //ÎÄ¼şÊ¹ÓÃÎ»Í¼
+    //æ–‡ä»¶ä½¿ç”¨ä½å›¾
     bit_map *useBit;
 
-    //¼ÇÂ¼ÎÄ¼şÊ×²¿Õ¼ÓÃ×Ö½ÚÊı
+    //è®°å½•æ–‡ä»¶é¦–éƒ¨å ç”¨å­—èŠ‚æ•°
     const static off_t HEAD_BYTE_SIZE;
 
-    //Ò»¸öbit_map¼ÇÂ¼¶ÔÓ¦µÄpageÊı
+    //ä¸€ä¸ªbit_mapè®°å½•å¯¹åº”çš„pageæ•°
     const static int NUM_PAGES_OF_BIT_MAP;
     
-    //Î»Í¼¸öÊı
+    //ä½å›¾ä¸ªæ•°
     const static int BIT_MAP_SIZE;
 
 };

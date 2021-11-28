@@ -1,4 +1,4 @@
-#include "data_storage_manager.h"
+ï»¿#include "data_storage_manager.h"
 
 const int DSMgr::NUM_PAGES_OF_BIT_MAP = sizeof(bit_map) * 8;
 const int DSMgr::BIT_MAP_SIZE = MAXPAGES / NUM_PAGES_OF_BIT_MAP + 1;
@@ -29,7 +29,7 @@ void DSMgr::OpenFile(string filename, bool create_file) {
 			FAILARG("Error reading element of \"numUsePages\" in file");
 		if (fread(useBit, sizeof(bit_map), BIT_MAP_SIZE, currFile) != BIT_MAP_SIZE)
 			FAILARG("Error reading element of \"useBit\" in file");
-		//fprintf(stderr, "allocated:%d£¬used:%d", numAllocatePages, numUsePages);
+		//fprintf(stderr, "allocated:%dï¼Œused:%d", numAllocatePages, numUsePages);
 	}
 }
 
@@ -39,7 +39,7 @@ void DSMgr::CloseFile() {
 	if (_fseeki64(currFile, 0, SEEK_SET) || ferror(currFile))
 		FAIL;
 
-	//½«Ê×²¿Ğ´»ØÎÄ¼ş
+	//å°†é¦–éƒ¨å†™å›æ–‡ä»¶
 	if (fwrite(&numAllocatePages, sizeof(int), 1, currFile) != 1)
 		FAILARG("Error writing element of \"numAllocatePages\" in file");
 	if (fwrite(&numUsePages, sizeof(int), 1, currFile) != 1)
@@ -78,9 +78,9 @@ void DSMgr::SetUse(int page_id, bool isUse) {
 
 	bit_map& use_bit = useBit[page_id / NUM_PAGES_OF_BIT_MAP];
 	int setbit = NUM_PAGES_OF_BIT_MAP - (page_id % NUM_PAGES_OF_BIT_MAP) - 1;
-	if (isUse) {//¶¨ÒåÎªÒÑÊ¹ÓÃ
+	if (isUse) {//å®šä¹‰ä¸ºå·²ä½¿ç”¨
 		use_bit |= (1ULL << setbit);
-	} else { //¶¨ÒåÎªÎ´Ê¹ÓÃ
+	} else { //å®šä¹‰ä¸ºæœªä½¿ç”¨
 		use_bit &= ~(1ULL << setbit);
 	}
 }
@@ -115,7 +115,7 @@ void DSMgr::WritePage(int page_id, bFrame* frm) {
 		FAILARG("The page visited exceeds the maximum file size");
 	}
 
-	//ÅĞ¶Ï¸ÃÒ³ÊÇ·ñ·ÖÅä£¬ÈôÎ´·ÖÅä£¬Ôò·ÖÅä
+	//åˆ¤æ–­è¯¥é¡µæ˜¯å¦åˆ†é…ï¼Œè‹¥æœªåˆ†é…ï¼Œåˆ™åˆ†é…
 	while (page_id >= numAllocatePages) {AddAllocatePages();}
 
 	off_t off_set = HEAD_BYTE_SIZE + page_id * off_t(FRAMESIZE);
@@ -128,7 +128,7 @@ void DSMgr::WritePage(int page_id, bFrame* frm) {
 
 void DSMgr::DeletePage(int page_id) {
 	LOG_DEBUG("execute DSMgr::DeletePage");
-	//±ê¼ÇÎªÎ´Ê¹ÓÃ£¬Âß¼­ÉÏÉ¾³ı£¬²¢·ÇÎïÀíÉÏÉ¾³ı
+	//æ ‡è®°ä¸ºæœªä½¿ç”¨ï¼Œé€»è¾‘ä¸Šåˆ é™¤ï¼Œå¹¶éç‰©ç†ä¸Šåˆ é™¤
 	SetUse(page_id, false);
 	numUsePages--;
 }
@@ -136,21 +136,21 @@ void DSMgr::DeletePage(int page_id) {
 int DSMgr::GetFreePageId() {
 	LOG_DEBUG("execute DSMgr::GetFreePage");
 
-	if (numAllocatePages == numUsePages) {//ËùÓĞ·ÖÅäµÄÒ³¶¼±»Ê¹ÓÃ
+	if (numAllocatePages == numUsePages) {//æ‰€æœ‰åˆ†é…çš„é¡µéƒ½è¢«ä½¿ç”¨
 		AddAllocatePages();
 		return numUsePages;
-	} else {//ÒÑ·ÖÅäµÄÒ³ÖĞ´æÔÚÎ´Ê¹ÓÃµÄÒ³
+	} else {//å·²åˆ†é…çš„é¡µä¸­å­˜åœ¨æœªä½¿ç”¨çš„é¡µ
 		int idx = 0;
 		int num_allocated_bit_maps = numAllocatePages / NUM_PAGES_OF_BIT_MAP;
 		while (idx < num_allocated_bit_maps) {
-			//posµÃµ½ÕûĞÍÊı0³öÏÖµÄ×îµÍÎ»
+			//poså¾—åˆ°æ•´å‹æ•°0å‡ºç°çš„æœ€ä½ä½
 			int pos = FIRSTSIGN(~useBit[idx]);
 			if (pos != NUM_PAGES_OF_BIT_MAP) {
 				return (idx + 1) * NUM_PAGES_OF_BIT_MAP - pos - 1;
 			}
 			idx++;
 		}
-		//Èç¹ûÎŞfree page£¬Å×³ö´íÎó
+		//å¦‚æœæ— free pageï¼ŒæŠ›å‡ºé”™è¯¯
 		FAIL;
 	}
 	
